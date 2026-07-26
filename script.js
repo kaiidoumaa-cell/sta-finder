@@ -2,11 +2,10 @@
 // STA Finder
 // ==========================================
 
-// Menyimpan seluruh data STA dari CSV
 let dataSTA = [];
 
 // ==========================================
-// Membaca file CSV saat website dibuka
+// Membaca CSV
 // ==========================================
 
 fetch("sta.csv")
@@ -15,35 +14,41 @@ fetch("sta.csv")
 
         let baris = text.trim().split("\n");
 
-        // Lewati header
         for (let i = 1; i < baris.length; i++) {
 
             let kolom = baris[i].split(",");
 
             dataSTA.push({
-                sta: kolom[0],
+                sta: kolom[0].trim(),
                 lat: parseFloat(kolom[1]),
                 lon: parseFloat(kolom[2])
             });
 
         }
 
-        console.log("Data STA berhasil dibaca");
         console.log(dataSTA);
+
+        document.getElementById("csvStatus").innerHTML =
+            "🟢 Berhasil (" + dataSTA.length + " titik)";
 
     })
     .catch(error => {
-        console.error("Gagal membaca CSV:", error);
+
+        console.log(error);
+
+        document.getElementById("csvStatus").innerHTML =
+            "🔴 Gagal membaca CSV";
+
     });
 
 
 // ==========================================
-// Rumus Haversine (Menghitung jarak)
+// Rumus Haversine
 // ==========================================
 
 function hitungJarak(lat1, lon1, lat2, lon2) {
 
-    const R = 6371000; // Radius bumi (meter)
+    const R = 6371000;
 
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -60,33 +65,51 @@ function hitungJarak(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
+
 // ==========================================
-// Tombol Cari Lokasi
+// Cari Lokasi
 // ==========================================
 
 function cekLokasi() {
 
+    document.getElementById("gpsStatus").innerHTML =
+        "🟡 Mengambil lokasi...";
+
     if (!navigator.geolocation) {
-        alert("Browser tidak mendukung Geolocation");
+
+        alert("Browser tidak mendukung GPS");
+
         return;
+
     }
 
-    navigator.geolocation.watchPosition(
+    navigator.geolocation.getCurrentPosition(
 
-        function (pos) {
+        function(pos){
 
             let lat = pos.coords.latitude;
             let lon = pos.coords.longitude;
             let akurasi = pos.coords.accuracy;
 
-            // Jangan gunakan lokasi jika akurasinya buruk
-            if (akurasi > 20) {
-                console.log("Menunggu GPS lebih akurat...");
-                return;
-            }
+            document.getElementById("gpsStatus").innerHTML =
+                "🟢 Terhubung";
 
-            document.getElementById("lat").innerHTML = lat.toFixed(7);
-            document.getElementById("lon").innerHTML = lon.toFixed(7);
+            document.getElementById("lat").innerHTML =
+                lat.toFixed(7);
+
+            document.getElementById("lon").innerHTML =
+                lon.toFixed(7);
+
+            document.getElementById("akurasi").innerHTML =
+                "± " + akurasi.toFixed(1) + " meter";
+
+            document.getElementById("waktu").innerHTML =
+                new Date().toLocaleString("id-ID");
+
+
+            // ============================
+            // Cari STA terdekat
+            // ============================
 
             let jarakTerkecil = Infinity;
             let staTerdekat = "-";
@@ -101,78 +124,27 @@ function cekLokasi() {
                 );
 
                 if (jarak < jarakTerkecil) {
+
                     jarakTerkecil = jarak;
                     staTerdekat = titik.sta;
+
                 }
 
             }
 
-            document.getElementById("sta").innerHTML = staTerdekat;
+            document.getElementById("sta").innerHTML =
+                staTerdekat;
 
         },
 
-        function (error) {
+        function(error){
 
             console.log(error);
+
+            document.getElementById("gpsStatus").innerHTML =
+                "🔴 GPS Gagal";
 
             alert("GPS gagal dibaca.");
-
-        },
-
-        {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 30000
-        }
-
-    );
-
-}
-// ===============================
-// Cari STA terdekat
-// ===============================
-
-let jarakTerkecil = Infinity;
-let staTerdekat = "-";
-
-for (let titik of dataSTA) {
-
-    let jarak = hitungJarak(
-        lat,
-        lon,
-        titik.lat,
-        titik.lon
-    );
-
-    if (jarak < jarakTerkecil) {
-        jarakTerkecil = jarak;
-        staTerdekat = titik.sta;
-    }
-
-}
-
-document.getElementById("sta").innerHTML = staTerdekat;
-document.getElementById("jarak").innerHTML = jarakTerkecil.toFixed(2) + " meter";
-
-        },
-
-        function(error) {
-
-            console.log(error);
-
-            switch(error.code){
-                case error.PERMISSION_DENIED:
-                    alert("Izin lokasi ditolak.");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("Lokasi tidak tersedia.");
-                    break;
-                case error.TIMEOUT:
-                    alert("GPS timeout.");
-                    break;
-                default:
-                    alert("Terjadi kesalahan GPS.");
-            }
 
         },
 
