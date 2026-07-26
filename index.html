@@ -1,15 +1,103 @@
-<h1>CEK LOKASI STA</h1>
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>STA Finder</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🛣️ STA FINDER</h1>
+
+<div class="card">
+
+<h2>Status Sistem</h2>
+
+<p>GPS :
+<span id="gpsStatus">
+Belum aktif
+</span>
+</p>
+
+<p>CSV :
+<span id="csvStatus">
+Belum dimuat
+</span>
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>Lokasi</h2>
+
+<p>Latitude</p>
+
+<div class="nilai" id="lat">
+-
+</div>
+
+<p>Longitude</p>
+
+<div class="nilai" id="lon">
+-
+</div>
+
+<p>Akurasi GPS</p>
+
+<div class="nilai" id="akurasi">
+-
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>STA Terdekat</h2>
+
+<div id="sta" class="sta">
+
+-
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Update Terakhir</h2>
+
+<div id="waktu">
+
+-
+
+</div>
+
+</div>
+
 
 <button onclick="cekLokasi()">
-    Cari Posisi Saya
+
+📍 CARI POSISI SAYA
+
 </button>
 
-<hr>
-
-<p>Latitude : <span id="lat">-</span></p>
-
-<p>Longitude : <span id="lon">-</span></p>
-
-<p>STA : <span id="sta">-</span></p>
+</div>
 
 <script src="script.js"></script>
+
+</body>
+
+</html>
