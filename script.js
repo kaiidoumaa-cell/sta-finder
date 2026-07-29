@@ -172,6 +172,20 @@ function cekLokasi() {
                 }
 
             }
+            
+            // ==========================
+            // Cek apakah di luar area proyek
+            // ==========================
+    
+            if (jarakTerkecil > 500) {
+
+                document.getElementById("sta").innerHTML = "Di luar area proyek";
+                document.getElementById("jarak").innerHTML = (jarakTerkecil / 1000).toFixed(2) + " km";
+                document.getElementById("arah").innerHTML = "-";
+
+                return;
+
+            }
 
             // ==========================
             // Tampilkan hasil
