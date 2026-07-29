@@ -72,6 +72,12 @@ function hitungJarak(lat1, lon1, lat2, lon2) {
 
 function cekLokasi() {
 
+    // Pastikan data CSV sudah dimuat
+    if (dataSTA.length === 0) {
+        alert("Data STA belum selesai dimuat. Tunggu beberapa detik lalu coba lagi.");
+        return;
+    }
+
     document.getElementById("gpsStatus").innerHTML = "🟡 Mengambil lokasi...";
 
     if (!navigator.geolocation) {
@@ -117,12 +123,23 @@ function cekLokasi() {
                 );
 
                 if (jarak < jarakTerkecil) {
-
                     jarakTerkecil = jarak;
                     staTerdekat = titik.sta;
                     indexSTA = i;
-
                 }
+
+            }
+
+            // Jika tidak ada STA
+            if (indexSTA === -1) {
+
+                document.getElementById("gpsStatus").innerHTML = "🔴 STA Tidak Ditemukan";
+                document.getElementById("sta").innerHTML = "-";
+                document.getElementById("jarak").innerHTML = "-";
+                document.getElementById("arah").innerHTML = "-";
+
+                alert("Data STA tidak ditemukan.");
+                return;
 
             }
 
@@ -132,17 +149,19 @@ function cekLokasi() {
 
             let arah = "-";
 
-            if (indexSTA == 0) {
+            if (dataSTA.length === 1) {
+
+                arah = "Hanya ada 1 STA";
+
+            } else if (indexSTA === 0) {
 
                 arah = "➡ Menuju STA " + dataSTA[1].sta;
 
-            }
-            else if (indexSTA == dataSTA.length - 1) {
+            } else if (indexSTA === dataSTA.length - 1) {
 
                 arah = "⬅ Menuju STA " + dataSTA[dataSTA.length - 2].sta;
 
-            }
-            else if (indexSTA > 0) {
+            } else {
 
                 let sebelum = dataSTA[indexSTA - 1];
                 let sesudah = dataSTA[indexSTA + 1];
@@ -162,28 +181,10 @@ function cekLokasi() {
                 );
 
                 if (jarakSesudah < jarakSebelum) {
-
                     arah = "➡ Menuju STA " + sesudah.sta;
-
                 } else {
-
                     arah = "⬅ Menuju STA " + sebelum.sta;
-
                 }
-
-            }
-            
-            // ==========================
-            // Cek apakah di luar area proyek
-            // ==========================
-    
-            if (jarakTerkecil > 500) {
-
-                document.getElementById("sta").innerHTML = "Di luar area proyek";
-                document.getElementById("jarak").innerHTML = (jarakTerkecil / 1000).toFixed(2) + " km";
-                document.getElementById("arah").innerHTML = "-";
-
-                return;
 
             }
 
@@ -199,35 +200,39 @@ function cekLokasi() {
 
         function (error) {
 
-            console.log(error);
+            console.error(error);
 
             document.getElementById("gpsStatus").innerHTML = "🔴 GPS Gagal";
+
+            let pesan = "";
 
             switch (error.code) {
 
                 case error.PERMISSION_DENIED:
-                    alert("Izin lokasi ditolak.");
+                    pesan = "Izin lokasi ditolak.";
                     break;
 
                 case error.POSITION_UNAVAILABLE:
-                    alert("Lokasi tidak tersedia.");
+                    pesan = "Lokasi tidak tersedia.";
                     break;
 
                 case error.TIMEOUT:
-                    alert("GPS timeout.");
+                    pesan = "GPS timeout. Coba pindah ke area terbuka.";
                     break;
 
                 default:
-                    alert("GPS gagal dibaca.");
+                    pesan = error.message || "GPS gagal dibaca.";
 
             }
+
+            alert(pesan);
 
         },
 
         {
             enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
+            timeout: 30000,
+            maximumAge: 5000
         }
 
     );
