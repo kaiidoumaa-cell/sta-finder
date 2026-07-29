@@ -72,49 +72,42 @@ function hitungJarak(lat1, lon1, lat2, lon2) {
 
 function cekLokasi() {
 
-    document.getElementById("gpsStatus").innerHTML =
-        "🟡 Mengambil lokasi...";
+    document.getElementById("gpsStatus").innerHTML = "🟡 Mengambil lokasi...";
 
     if (!navigator.geolocation) {
-
         alert("Browser tidak mendukung GPS");
-
         return;
-
     }
 
     navigator.geolocation.getCurrentPosition(
 
-        function(pos){
+        function (pos) {
 
             let lat = pos.coords.latitude;
             let lon = pos.coords.longitude;
             let akurasi = pos.coords.accuracy;
 
-            document.getElementById("gpsStatus").innerHTML =
-                "🟢 Terhubung";
+            // ==========================
+            // Tampilkan informasi GPS
+            // ==========================
 
-            document.getElementById("lat").innerHTML =
-                lat.toFixed(7);
+            document.getElementById("gpsStatus").innerHTML = "🟢 Terhubung";
+            document.getElementById("lat").innerHTML = lat.toFixed(7);
+            document.getElementById("lon").innerHTML = lon.toFixed(7);
+            document.getElementById("akurasi").innerHTML = "± " + akurasi.toFixed(1) + " meter";
+            document.getElementById("waktu").innerHTML = new Date().toLocaleString("id-ID");
 
-            document.getElementById("lon").innerHTML =
-                lon.toFixed(7);
-
-            document.getElementById("akurasi").innerHTML =
-                "± " + akurasi.toFixed(1) + " meter";
-
-            document.getElementById("waktu").innerHTML =
-                new Date().toLocaleString("id-ID");
-
-
-            // ============================
+            // ==========================
             // Cari STA terdekat
-            // ============================
+            // ==========================
 
             let jarakTerkecil = Infinity;
             let staTerdekat = "-";
+            let indexSTA = -1;
 
-            for (let titik of dataSTA) {
+            for (let i = 0; i < dataSTA.length; i++) {
+
+                let titik = dataSTA[i];
 
                 let jarak = hitungJarak(
                     lat,
@@ -127,24 +120,93 @@ function cekLokasi() {
 
                     jarakTerkecil = jarak;
                     staTerdekat = titik.sta;
+                    indexSTA = i;
 
                 }
 
             }
 
-            document.getElementById("sta").innerHTML =
-                staTerdekat;
+            // ==========================
+            // Tentukan arah
+            // ==========================
+
+            let arah = "-";
+
+            if (indexSTA == 0) {
+
+                arah = "➡ Menuju STA " + dataSTA[1].sta;
+
+            }
+            else if (indexSTA == dataSTA.length - 1) {
+
+                arah = "⬅ Menuju STA " + dataSTA[dataSTA.length - 2].sta;
+
+            }
+            else if (indexSTA > 0) {
+
+                let sebelum = dataSTA[indexSTA - 1];
+                let sesudah = dataSTA[indexSTA + 1];
+
+                let jarakSebelum = hitungJarak(
+                    lat,
+                    lon,
+                    sebelum.lat,
+                    sebelum.lon
+                );
+
+                let jarakSesudah = hitungJarak(
+                    lat,
+                    lon,
+                    sesudah.lat,
+                    sesudah.lon
+                );
+
+                if (jarakSesudah < jarakSebelum) {
+
+                    arah = "➡ Menuju STA " + sesudah.sta;
+
+                } else {
+
+                    arah = "⬅ Menuju STA " + sebelum.sta;
+
+                }
+
+            }
+
+            // ==========================
+            // Tampilkan hasil
+            // ==========================
+
+            document.getElementById("sta").innerHTML = staTerdekat;
+            document.getElementById("jarak").innerHTML = jarakTerkecil.toFixed(1) + " meter";
+            document.getElementById("arah").innerHTML = arah;
 
         },
 
-        function(error){
+        function (error) {
 
             console.log(error);
 
-            document.getElementById("gpsStatus").innerHTML =
-                "🔴 GPS Gagal";
+            document.getElementById("gpsStatus").innerHTML = "🔴 GPS Gagal";
 
-            alert("GPS gagal dibaca.");
+            switch (error.code) {
+
+                case error.PERMISSION_DENIED:
+                    alert("Izin lokasi ditolak.");
+                    break;
+
+                case error.POSITION_UNAVAILABLE:
+                    alert("Lokasi tidak tersedia.");
+                    break;
+
+                case error.TIMEOUT:
+                    alert("GPS timeout.");
+                    break;
+
+                default:
+                    alert("GPS gagal dibaca.");
+
+            }
 
         },
 
