@@ -3,6 +3,7 @@
 // ==========================================
 
 let dataSTA = [];
+let lasIndexSTA = null;
 
 // ==========================================
 // Membaca CSV
@@ -85,7 +86,7 @@ function cekLokasi() {
         return;
     }
 
-    navigator.geolocation.getCurrentPosition(
+    navigator.geolocation.watchPosition(
 
         function (pos) {
 
