@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
 
 <meta charset="UTF-8">
@@ -20,23 +19,22 @@
 
 <div class="card">
 
-<div class="card project-card">
-    <div class="project-title">
-      Helipad BMH Ibu Kota Nusantara
-    </div>
+<div class="project-card">
+<div class="project-title">
+Helipad BMH Ibu Kota Nusantara
 </div>
-  
+</div>
+
 <h2>Status Sistem</h2>
-<p>GPS :
-<span id="gpsStatus">
-Belum aktif
-</span>
+
+<p>
+GPS :
+<span id="gpsStatus">Belum aktif</span>
 </p>
 
-<p>CSV :
-<span id="csvStatus">
-Belum dimuat
-</span>
+<p>
+CSV :
+<span id="csvStatus">Belum dimuat</span>
 </p>
 
 </div>
@@ -47,28 +45,13 @@ Belum dimuat
 <h2>Lokasi</h2>
 
 <p>Latitude</p>
-
-<div class="nilai" id="lat">
--
-</div>
+<div class="nilai" id="lat">-</div>
 
 <p>Longitude</p>
+<div class="nilai" id="lon">-</div>
 
-<div class="nilai" id="lon">
--
-</div>
-
-<p>Akurasi GPS</p>
-
-<div class="nilai" id="akurasi">
--
-</div>
-
-<p>Arah</p>
-
-<div class="nilai" id="arah">
--
-</div>
+<p>Arah Perjalanan</p>
+<div class="nilai" id="arah">-</div>
 
 </div>
 
@@ -77,16 +60,19 @@ Belum dimuat
 
 <h2>STA Terdekat</h2>
 
-<div id="sta" class="sta">
+<div class="sta" id="sta">
 -
-    
 </div>
 
-<p>Jarak</p>
+</div>
+
+
+<div class="card">
+
+<h2>Jarak ke STA</h2>
 
 <div class="nilai" id="jarak">
 -
-
 </div>
 
 </div>
@@ -97,18 +83,14 @@ Belum dimuat
 <h2>Update Terakhir</h2>
 
 <div id="waktu">
-
 -
-
 </div>
 
 </div>
 
 
 <button onclick="cekLokasi()">
-
 📍 CARI POSISI SAYA
-
 </button>
 
 </div>
@@ -116,5 +98,4 @@ Belum dimuat
 <script src="script.js"></script>
 
 </body>
-
 </html>
