@@ -16,7 +16,7 @@ fetch("sta.csv")
 
         for (let i = 1; i < baris.length; i++) {
 
-            let kolom = baris[i].split(";");
+            let kolom = baris[i].split(",");
 
             dataSTA.push({
                 sta: kolom[0].trim(),
@@ -63,6 +63,7 @@ function hitungJarak(lat1, lon1, lat2, lon2) {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c;
+
 }
 
 
@@ -78,18 +79,21 @@ function cekLokasi() {
     if (!navigator.geolocation) {
 
         alert("Browser tidak mendukung GPS");
-
         return;
 
     }
 
     navigator.geolocation.getCurrentPosition(
 
-        function(pos){
+        function (pos) {
 
             let lat = pos.coords.latitude;
             let lon = pos.coords.longitude;
             let akurasi = pos.coords.accuracy;
+
+            // ==========================
+            // Tampilkan Informasi GPS
+            // ==========================
 
             document.getElementById("gpsStatus").innerHTML =
                 "🟢 Terhubung";
@@ -107,9 +111,9 @@ function cekLokasi() {
                 new Date().toLocaleString("id-ID");
 
 
-            // ============================
-            // Cari STA terdekat
-            // ============================
+            // ==========================
+            // Cari STA Terdekat
+            // ==========================
 
             let jarakTerkecil = Infinity;
             let staTerdekat = "-";
@@ -132,12 +136,17 @@ function cekLokasi() {
 
             }
 
+
+            // ==========================
+            // Tampilkan Hasil
+            // ==========================
+
             document.getElementById("sta").innerHTML =
                 staTerdekat;
 
         },
 
-        function(error){
+        function (error) {
 
             console.log(error);
 
