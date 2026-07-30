@@ -1,109 +1,54 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>STA Finder</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STA Finder</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <div class="container">
+        <h1>🛣️ STA FINDER</h1>
+        
+        <div class="card">
+            <div class="project-card">
+                <div class="project-title">Helipad BMH Ibu Kota Nusantara</div>
+            </div>
+            <h2>Status Sistem</h2>
+            <p>GPS : <span id="gpsStatus">Belum aktif</span></p>
+            <p>CSV : <span id="csvStatus">Belum dimuat</span></p>
+        </div>
 
-<div class="container">
+        <div class="card">
+            <h2>Lokasi Saat Ini</h2>
+            <p>Latitude</p>
+            <div class="nilai" id="lat">-</div>
+            <p>Longitude</p>
+            <div class="nilai" id="lon">-</div>
+            <p>Akurasi GPS</p>
+            <div class="nilai" id="akurasi">-</div>
+            
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ddd;">
+            
+            <p>Jarak ke STA Terdekat</p>
+            <div class="nilai" id="jarak">-</div>
+            <p>Arah ke STA Terdekat</p>
+            <div class="nilai" id="arah">-</div>
+        </div>
 
-<h1>🛣️ STA FINDER</h1>
+        <div class="card">
+            <h2>STA Terdekat</h2>
+            <div id="sta" class="sta">-</div>
+        </div>
 
-<div class="card">
+        <div class="card">
+            <h2>Update Terakhir</h2>
+            <div id="waktu">-</div>
+        </div>
 
-<div class="project-card">
-<div class="project-title">
-Helipad BMH Ibu Kota Nusantara
-</div>
-</div>
+        <button id="btnLokasi" onclick="toggleLokasi()">📍 MULAI PELACAKAN LIVE</button>
+    </div>
 
-<h2>Status Sistem</h2>
-
-<p>
-GPS :
-<span id="gpsStatus">
-Belum aktif
-</span>
-</p>
-
-<p>CSV :
-<span id="csvStatus">
-Belum dimuat
-</span>
-</p>
-
-</div>
-
-
-<div class="card">
-
-<h2>Lokasi</h2>
-
-<p>Latitude</p>
-
-<div class="nilai" id="lat">
--
-</div>
-
-<p>Longitude</p>
-
-<div class="nilai" id="lon">
--
-</div>
-
-<p>Akurasi GPS</p>
-
-<div class="nilai" id="akurasi">
--
-</div>
-
-</div>
-
-
-<div class="card">
-
-<h2>STA Terdekat</h2>
-
-<div id="sta" class="sta">
-
--
-
-</div>
-
-</div>
-
-
-<div class="card">
-
-<h2>Update Terakhir</h2>
-
-<div id="waktu">
-
--
-
-</div>
-
-</div>
-
-
-<button onclick="cekLokasi()">
-
-📍 CARI POSISI SAYA
-
-</button>
-
-</div>
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
-
 </html>
