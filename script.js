@@ -82,7 +82,7 @@ function toggleLokasi() {
     if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
-        btn.innerHTML = "📍 MULAI PELACAKAN LIVE";
+        btn.innerHTML = "MULAI PELACAKAN LIVE";
         btn.style.background = "#1976d2";
         document.getElementById("gpsStatus").innerHTML = "⚪ Berhenti melacak";
         return;
