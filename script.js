@@ -144,50 +144,32 @@ function cekLokasi() {
             }
 
             // ==========================
-            // Tentukan arah
+            // Tentukan arah perjalanan
             // ==========================
 
-            let arah = "-";
+            let arah = "Posisi awal";
 
-            if (dataSTA.length === 1) {
+            if (lastIndexSTA !== null) {
 
-                arah = "Hanya ada 1 STA";
+                if (indexSTA > lastIndexSTA) {
 
-            } else if (indexSTA === 0) {
+                    arah = "➡ Menuju STA Membesar";
 
-                arah = "➡ Menuju STA " + dataSTA[1].sta;
+            } else if (indexSTA < lastIndexSTA) {
 
-            } else if (indexSTA === dataSTA.length - 1) {
-
-                arah = "⬅ Menuju STA " + dataSTA[dataSTA.length - 2].sta;
+                    arah = "⬅ Menuju STA Mengecil";
 
             } else {
 
-                let sebelum = dataSTA[indexSTA - 1];
-                let sesudah = dataSTA[indexSTA + 1];
-
-                let jarakSebelum = hitungJarak(
-                    lat,
-                    lon,
-                    sebelum.lat,
-                    sebelum.lon
-                );
-
-                let jarakSesudah = hitungJarak(
-                    lat,
-                    lon,
-                    sesudah.lat,
-                    sesudah.lon
-                );
-
-                if (jarakSesudah < jarakSebelum) {
-                    arah = "➡ Menuju STA " + sesudah.sta;
-                } else {
-                    arah = "⬅ Menuju STA " + sebelum.sta;
-                }
+                    arah = "⏸ Tetap di STA yang sama";
 
             }
 
+        }
+
+        // Simpan STA sekarang
+        lastIndexSTA = indexSTA;
+            
             // ==========================
             // Tampilkan hasil
             // ==========================
