@@ -73,151 +73,133 @@ function hitungJarak(lat1, lon1, lat2, lon2) {
 
 function cekLokasi() {
 
-    // Pastikan data CSV sudah dimuat
-    if (dataSTA.length === 0) {
-        alert("Data STA belum selesai dimuat. Tunggu beberapa detik lalu coba lagi.");
+    if(dataSTA.length==0){
+        alert("CSV belum selesai dimuat.");
         return;
     }
 
-    document.getElementById("gpsStatus").innerHTML = "🟡 Mengambil lokasi...";
+    document.getElementById("gpsStatus").innerHTML="🟡 Mengambil lokasi...";
 
-    if (!navigator.geolocation) {
-        alert("Browser tidak mendukung GPS");
-        return;
-    }
+    navigator.geolocation.getCurrentPosition(
 
-    navigator.geolocation.watchPosition(
+    function(pos){
 
-        function (pos) {
+        let lat=pos.coords.latitude;
+        let lon=pos.coords.longitude;
 
-            let lat = pos.coords.latitude;
-            let lon = pos.coords.longitude;
-            let akurasi = pos.coords.accuracy;
+        document.getElementById("gpsStatus").innerHTML="🟢 Terhubung";
+        document.getElementById("lat").innerHTML=lat.toFixed(7);
+        document.getElementById("lon").innerHTML=lon.toFixed(7);
+        document.getElementById("waktu").innerHTML=
+        new Date().toLocaleString("id-ID");
 
-            // ==========================
-            // Tampilkan informasi GPS
-            // ==========================
 
-            document.getElementById("gpsStatus").innerHTML = "🟢 Terhubung";
-            document.getElementById("lat").innerHTML = lat.toFixed(7);
-            document.getElementById("lon").innerHTML = lon.toFixed(7);
-            document.getElementById("akurasi").innerHTML = "± " + akurasi.toFixed(1) + " meter";
-            document.getElementById("waktu").innerHTML = new Date().toLocaleString("id-ID");
 
-            // ==========================
-            // Cari STA terdekat
-            // ==========================
+        //----------------------------------
+        // Cari STA terdekat
+        //----------------------------------
 
-            let jarakTerkecil = Infinity;
-            let staTerdekat = "-";
-            let indexSTA = -1;
+        let jarakTerkecil=Infinity;
+        let indexSTA=-1;
 
-            for (let i = 0; i < dataSTA.length; i++) {
+        for(let i=0;i<dataSTA.length;i++){
 
-                let titik = dataSTA[i];
+            let jarak=hitungJarak(
+                lat,
+                lon,
+                dataSTA[i].lat,
+                dataSTA[i].lon
+            );
 
-                let jarak = hitungJarak(
-                    lat,
-                    lon,
-                    titik.lat,
-                    titik.lon
-                );
+            if(jarak<jarakTerkecil){
 
-                if (jarak < jarakTerkecil) {
-                    jarakTerkecil = jarak;
-                    staTerdekat = titik.sta;
-                    indexSTA = i;
-                }
-
-            }
-
-            // Jika tidak ada STA
-            if (indexSTA === -1) {
-
-                document.getElementById("gpsStatus").innerHTML = "🔴 STA Tidak Ditemukan";
-                document.getElementById("sta").innerHTML = "-";
-                document.getElementById("jarak").innerHTML = "-";
-                document.getElementById("arah").innerHTML = "-";
-
-                alert("Data STA tidak ditemukan.");
-                return;
-
-            }
-
-            // ==========================
-            // Tentukan arah perjalanan
-            // ==========================
-
-            let arah = "Posisi awal";
-
-            if (lastIndexSTA !== null) {
-
-                if (indexSTA > lastIndexSTA) {
-
-                    arah = "➡ Menuju STA Membesar";
-
-            } else if (indexSTA < lastIndexSTA) {
-
-                    arah = "⬅ Menuju STA Mengecil";
-
-            } else {
-
-                    arah = "⏸ Tetap di STA yang sama";
+                jarakTerkecil=jarak;
+                indexSTA=i;
 
             }
 
         }
 
-        // Simpan STA sekarang
-        lastIndexSTA = indexSTA;
-            
-            // ==========================
-            // Tampilkan hasil
-            // ==========================
 
-            document.getElementById("sta").innerHTML = staTerdekat;
-            document.getElementById("jarak").innerHTML = jarakTerkecil.toFixed(1) + " meter";
-            document.getElementById("arah").innerHTML = arah;
 
-        },
+        //----------------------------------
+        // Jika tidak ditemukan
+        //----------------------------------
 
-        function (error) {
+        if(indexSTA==-1){
 
-            console.error(error);
+            document.getElementById("sta").innerHTML="-";
+            document.getElementById("jarak").innerHTML="-";
+            document.getElementById("arah").innerHTML="-";
 
-            document.getElementById("gpsStatus").innerHTML = "🔴 GPS Gagal";
+            return;
 
-            let pesan = "";
+        }
 
-            switch (error.code) {
 
-                case error.PERMISSION_DENIED:
-                    pesan = "Izin lokasi ditolak.";
-                    break;
 
-                case error.POSITION_UNAVAILABLE:
-                    pesan = "Lokasi tidak tersedia.";
-                    break;
+        //----------------------------------
+        // Tentukan arah perjalanan
+        //----------------------------------
 
-                case error.TIMEOUT:
-                    pesan = "GPS timeout. Coba pindah ke area terbuka.";
-                    break;
+        let arah="Posisi awal";
 
-                default:
-                    pesan = error.message || "GPS gagal dibaca.";
+        if(lastIndexSTA!==null){
+
+            if(indexSTA>lastIndexSTA){
+
+                arah="➡ Menuju STA Membesar";
 
             }
 
-            alert(pesan);
+            else if(indexSTA<lastIndexSTA){
 
-        },
+                arah="⬅ Menuju STA Mengecil";
 
-        {
-            enableHighAccuracy: true,
-            timeout: 30000,
-            maximumAge: 5000
+            }
+
+            else{
+
+                arah="⏸ Tetap di STA yang sama";
+
+            }
+
         }
 
-    );
+        lastIndexSTA=indexSTA;
 
+
+
+        //----------------------------------
+        // Tampilkan hasil
+        //----------------------------------
+
+        document.getElementById("sta").innerHTML=
+        dataSTA[indexSTA].sta;
+
+        document.getElementById("jarak").innerHTML=
+        jarakTerkecil.toFixed(1)+" meter";
+
+        document.getElementById("arah").innerHTML=
+        arah;
+
+    },
+
+    function(error){
+
+        document.getElementById("gpsStatus").innerHTML="🔴 GPS Gagal";
+
+        alert(error.message);
+
+    },
+
+    {
+
+        enableHighAccuracy:true,
+        timeout:30000,
+        maximumAge:0
+
+    });
+
+}
 }
