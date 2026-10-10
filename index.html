@@ -8,9 +8,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>🛣️ STA FINDER</h1>
-        
-        <div class="card">
+        <!-- Header dengan Tombol Garis Tiga -->
+        <div class="header-nav" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h1 style="margin: 0; text-align: left;">STA FINDER</h1>
+            <button onclick="toggleMenu()" class="hamburger-btn">☰</button>
+    </div>
+            <div class="card">
             <div class="project-card">
                 <div class="project-title">Proyek Hankam Lingkar Sepaku 4</div>
             </div>
@@ -50,5 +53,27 @@
     </div>
 
     <script src="script.js"></script>
+
+    <!-- Sidebar Menu Geser -->
+    <div id="sideMenu" class="side-menu">
+        <div class="menu-header">
+            <h3>Pengaturan</h3>
+            <button onclick="toggleMenu()" class="close-btn">&times;</button>
+        </div>
+        <div class="menu-content">
+            <!-- Tombol Mode Gelap -->
+            <button id="btnDarkMode" onclick="toggleDarkMode()" class="menu-item" style="margin-bottom: 10px;">Mode Gelap</button>
+            
+            <!-- 1. Pencegah Layar Mati -->
+            <button id="btnWakeLock" onclick="toggleWakeLock()" class="menu-item" style="margin-bottom: 10px;">Layar Nyala: MATI</button>
+            
+            <!-- 2. Peringatan Getar Dekat STA -->
+            <button id="btnVibration" onclick="toggleVibration()" class="menu-item" style="margin-bottom: 10px;">Getar Dekat STA: MATI</button>
+            
+            <!-- 4. Ekspor Riwayat CSV -->
+            <button onclick="exportHistoryCSV()" class="menu-item" style="background: #2e7d32; color: white;">Ekspor Riwayat CSV</button>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -3,6 +3,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
+    transition: background 0.3s ease, color 0.3s ease; /* Transisi halus saat ganti mode */
 }
 .container {
     max-width: 500px;
@@ -18,6 +19,7 @@ h1 {
     margin-bottom: 15px;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,.05);
+    transition: background 0.3s ease, color 0.3s ease, border 0.3s ease;
 }
 .card p {
     margin: 10px 0 5px 0;
@@ -42,6 +44,7 @@ h1 {
     padding: 12px;
     margin-bottom: 15px;
     border: 1px solid #eee;
+    transition: background 0.3s ease, border 0.3s ease;
 }
 .project-title {
     font-size: 18px;
@@ -63,4 +66,143 @@ button {
 }
 button:hover {
     opacity: 0.9;
+}
+
+/* ==========================
+   STYLING MENU HAMBURGER & SIDEBAR
+   ========================== */
+.hamburger-btn {
+    background: #1976d2;
+    color: white;
+    border: none;
+    font-size: 22px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: auto !important;
+}
+
+.side-menu {
+    position: fixed;
+    top: 0;
+    right: -280px;
+    width: 260px;
+    height: 100%;
+    background: white;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.15);
+    transition: right 0.3s ease, background 0.3s ease, color 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.side-menu.open {
+    right: 0;
+}
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.menu-header h3 {
+    margin: 0;
+    color: #333;
+}
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #333;
+    width: auto !important;
+    padding: 0;
+}
+.menu-item {
+    width: 100%;
+    padding: 12px;
+    background: #f1f5f9;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+}
+.menu-item:hover {
+    background: #e2e8f0;
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    z-index: 999;
+}
+.menu-overlay.show {
+    display: block;
+}
+
+/* ==========================
+   GLOBAL DARK MODE (MENYELURUH)
+   ========================== */
+body.dark-mode {
+    background: #121212 !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode h1 {
+    color: #f1f1f1 !important;
+}
+body.dark-mode .card {
+    background: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    box-shadow: 0 4px 10px rgba(255,255,255,0.03) !important;
+    border: 1px solid #2c2c2c !important;
+}
+body.dark-mode .card p {
+    color: #b0b0b0 !important;
+}
+body.dark-mode .project-card {
+    background: #252525 !important;
+    border: 1px solid #333 !important;
+}
+body.dark-mode .project-title {
+    color: #ffffff !important;
+}
+body.dark-mode .nilai {
+    color: #64b5f6 !important; /* Biru terang agar kontras di gelap */
+}
+body.dark-mode .sta {
+    color: #81c784 !important; /* Hijau terang agar kontras di gelap */
+}
+body.dark-mode hr {
+    border-top: 1px solid #333 !important;
+}
+
+/* Dark mode untuk Sidebar & Menu */
+body.dark-mode .side-menu {
+    background: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border-left: 1px solid #2c2c2c !important;
+}
+body.dark-mode .menu-header h3, 
+body.dark-mode .close-btn {
+    color: #f1f1f1 !important;
+}
+body.dark-mode .menu-header {
+    border-bottom: 1px solid #333 !important;
+}
+body.dark-mode .menu-item {
+    background: #2c2c2c !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .menu-item:hover {
+    background: #383838 !important;
 }
