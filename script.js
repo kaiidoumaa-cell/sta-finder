@@ -1,8 +1,10 @@
 // ==========================================
-// STA Finder - Live Tracking & Arah
+// STA Finder - Live Tracking & Status STA
 // ==========================================
 let dataSTA = [];
 let watchId = null;
+let lastLat = null;
+let lastLon = null;
 
 // ==========================================
 // Membaca CSV
@@ -27,6 +29,17 @@ fetch("sta.csv")
         console.log(error);
         document.getElementById("csvStatus").innerHTML = "🔴 Gagal membaca CSV";
     });
+
+// ==========================================
+// Fungsi Parsing STA (Contoh: "1+500" jadi 1500 meter)
+// ==========================================
+function parseSTA(staStr) {
+    if (staStr && staStr.includes("+")) {
+        let parts = staStr.split("+");
+        return (parseFloat(parts[0]) * 1000) + parseFloat(parts[1]);
+    }
+    return -1;
+}
 
 // ==========================================
 // Rumus Haversine (Hitung Jarak)
@@ -60,19 +73,6 @@ function hitungBearing(lat1, lon1, lat2, lon2) {
 }
 
 // ==========================================
-// Konversi Derajat ke Arah Mata Angin
-// ==========================================
-function getArahMataAngin(bearing) {
-    const arah = [
-        "Utara ⬆️", "Timur Laut ↗️", "Timur ➡️", "Tenggara ↘️", 
-        "Selatan ⬇️", "Barat Daya ↙️", "Barat ⬅️", "Barat Laut ↖️"
-    ];
-    // Membagi 360 derajat menjadi 8 bagian (tiap bagian 45 derajat)
-    let index = Math.round(bearing / 45) % 8;
-    return arah[index];
-}
-
-// ==========================================
 // Live Tracking (Toggle Start/Stop)
 // ==========================================
 function toggleLokasi() {
@@ -82,6 +82,8 @@ function toggleLokasi() {
     if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
+        lastLat = null;
+        lastLon = null;
         btn.innerHTML = "MULAI PELACAKAN LIVE";
         btn.style.background = "#1976d2";
         document.getElementById("gpsStatus").innerHTML = "⚪ Berhenti melacak";
@@ -111,32 +113,85 @@ function toggleLokasi() {
             document.getElementById("akurasi").innerHTML = "± " + akurasi.toFixed(1) + " meter";
             document.getElementById("waktu").innerHTML = new Date().toLocaleString("id-ID");
 
-            let jarakTerkecil = Infinity;
-            let staTerdekat = "-";
-            let targetLat = 0;
-            let targetLon = 0;
+            // 1. Filter dan Urutkan STA standar secara numerik (terkecil ke terbesar)
+            let standardSTA = dataSTA.filter(item => item.sta.includes("+"));
+            standardSTA.sort((a, b) => parseSTA(a.sta) - parseSTA(b.sta));
 
-            // Cari jarak terdekat
-            for (let titik of dataSTA) {
-                let jarak = hitungJarak(lat, lon, titik.lat, titik.lon);
-                if (jarak < jarakTerkecil) {
-                    jarakTerkecil = jarak;
-                    staTerdekat = titik.sta;
-                    targetLat = titik.lat;
-                    targetLon = titik.lon;
+            if (standardSTA.length === 0) return;
+
+            // 2. Cari STA terdekat dari posisi saat ini
+            let minJarak = Infinity;
+            let closestIdx = 0;
+
+            for (let i = 0; i < standardSTA.length; i++) {
+                let jarak = hitungJarak(lat, lon, standardSTA[i].lat, standardSTA[i].lon);
+                if (jarak < minJarak) {
+                    minJarak = jarak;
+                    closestIdx = i;
                 }
             }
 
-            // Tampilkan Hasil (STA, Jarak, Arah)
-            if (staTerdekat !== "-") {
-                document.getElementById("sta").innerHTML = staTerdekat;
-                document.getElementById("jarak").innerHTML = jarakTerkecil.toFixed(1) + " meter";
-                
-                // Hitung arah dari posisi user ke STA
-                let bearing = hitungBearing(lat, lon, targetLat, targetLon);
-                let arahTeks = getArahMataAngin(bearing);
-                document.getElementById("arah").innerHTML = arahTeks;
+            let currentClosest = standardSTA[closestIdx];
+            document.getElementById("sta").innerHTML = currentClosest.sta;
+            document.getElementById("jarak").innerHTML = minJarak.toFixed(1) + " meter";
+
+            // Tentukan titik STA sebelum dan sesudahnya sebagai acuan
+            let prevSTA = closestIdx > 0 ? standardSTA[closestIdx - 1] : currentClosest;
+            let nextSTA = closestIdx < standardSTA.length - 1 ? standardSTA[closestIdx + 1] : currentClosest;
+
+            // ==========================================
+            // 3. Logika Penentuan Status Arah Baru
+            // ==========================================
+            let statusArah = "-";
+
+            // Jika jarak ke STA terdekat <= 4 meter, tampilkan status tepat di STA
+            if (minJarak <= 4.0) {
+                statusArah = "berada tepat di sta 📍";
+            } else {
+                // Deteksi arah gerakan atau posisi relatif
+                let userBearing = null;
+                if (lastLat !== null && lastLon !== null) {
+                    let distMoved = hitungJarak(lastLat, lastLon, lat, lon);
+                    if (distMoved > 0.4) { // Jika bergeser lebih dari 40 cm
+                        userBearing = hitungBearing(lastLat, lastLon, lat, lon);
+                    }
+                }
+                if (pos.coords.heading !== null && !isNaN(pos.coords.heading)) {
+                    userBearing = pos.coords.heading;
+                }
+
+                let bearingNext = hitungBearing(lat, lon, nextSTA.lat, nextSTA.lon);
+                let bearingPrev = hitungBearing(lat, lon, prevSTA.lat, prevSTA.lon);
+
+                if (userBearing !== null) {
+                    let diffNext = Math.abs(userBearing - bearingNext);
+                    if (diffNext > 180) diffNext = 360 - diffNext;
+                    let diffPrev = Math.abs(userBearing - bearingPrev);
+                    if (diffPrev > 180) diffPrev = 360 - diffPrev;
+
+                    if (diffNext < diffPrev) {
+                        statusArah = "menuju ke sta besar";
+                    } else {
+                        statusArah = "menuju ke sta kecil";
+                    }
+                } else {
+                    // Fallback jika posisi sedang diam: bandingkan jarak ke depan vs belakang
+                    let jrkNext = hitungJarak(lat, lon, nextSTA.lat, nextSTA.lon);
+                    let jrkPrev = hitungJarak(lat, lon, prevSTA.lat, prevSTA.lon);
+                    if (jrkNext < jrkPrev) {
+                        statusArah = "menuju ke sta besar";
+                    } else {
+                        statusArah = "menuju ke sta kecil";
+                    }
+                }
             }
+
+            // Tampilkan hasil teks status arah ke elemen HTML ID "arah"
+            document.getElementById("arah").innerHTML = statusArah;
+
+            // Simpan posisi terakhir untuk perbandingan gerakan berikutnya
+            lastLat = lat;
+            lastLon = lon;
         },
         function (error) {
             console.log(error);
