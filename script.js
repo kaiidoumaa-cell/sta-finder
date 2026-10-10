@@ -204,3 +204,167 @@ function toggleLokasi() {
         }
     );
 }
+
+// ==========================================
+// Kontrol Menu Hamburger (Sidebar)
+// ==========================================
+function toggleMenu() {
+    let menu = document.getElementById("sideMenu");
+    let overlay = document.getElementById("menuOverlay");
+    menu.classList.toggle("open");
+    overlay.classList.toggle("show");
+}
+
+// ==========================================
+// Fitur Mode Gelap (Dark Mode) di Menu
+// ==========================================
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    let btn = document.getElementById("btnDarkMode");
+    
+    if (document.body.classList.contains('dark-mode')) {
+        btn.innerHTML = "Mode Terang";
+        localStorage.setItem("theme", "dark");
+    } else {
+        btn.innerHTML = "Mode Gelap";
+        localStorage.setItem("theme", "light");
+    }
+}
+
+// Cek preferensi tema yang tersimpan saat halaman dimuat
+window.addEventListener('DOMContentLoaded', () => {
+    let savedTheme = localStorage.getItem("theme");
+    let btn = document.getElementById("btnDarkMode");
+    
+    if (savedTheme === "dark") {
+        document.body.classList.add('dark-mode');
+        if (btn) {
+            btn.innerHTML = "Mode Terang";
+        }
+    }
+});
+
+// ==========================================
+// 1. PENCEGAH LAYAR MATI (Wake Lock API)
+// ==========================================
+let wakeLock = null;
+let wakeLockEnabled = false;
+
+async function toggleWakeLock() {
+    if (!('wakeLock' in navigator)) {
+        alert('Fitur Wake Lock tidak didukung di browser HP/perangkat ini.');
+        return;
+    }
+    
+    wakeLockEnabled = !wakeLockEnabled;
+    let btn = document.getElementById('btnWakeLock');
+    
+    if (wakeLockEnabled) {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            btn.innerText = "Layar Nyala: AKTIF";
+            btn.style.background = "#1976d2";
+            btn.style.color = "white";
+            
+            wakeLock.addEventListener('release', () => {
+                wakeLock = null;
+            });
+        } catch (err) {
+            wakeLockEnabled = false;
+            btn.innerText = "Layar Nyala: MATI";
+            console.error(`${err.name}, ${err.message}`);
+        }
+    } else {
+        if (wakeLock) {
+            await wakeLock.release();
+            wakeLock = null;
+        }
+        btn.innerText = "Layar Nyala: MATI";
+        btn.style.background = "";
+        btn.style.color = "";
+    }
+}
+
+// Otomatis aktifkan kembali jika layar berpindah tab lalu kembali lagi
+document.addEventListener('visibilitychange', async () => {
+    if (wakeLockEnabled && document.visibilityState === 'visible') {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+        } catch (err) {
+            console.error(err);
+        }
+    }
+});
+
+
+// ==========================================
+// 2. PERINGATAN GETAR (Vibration API)
+// ==========================================
+let vibrationEnabled = false;
+
+function toggleVibration() {
+    if (!('vibrate' in navigator)) {
+        alert('Perangkat ini tidak mendukung fitur getar.');
+        return;
+    }
+    
+    vibrationEnabled = !vibrationEnabled;
+    let btn = document.getElementById('btnVibration');
+    
+    if (vibrationEnabled) {
+        btn.innerText = "Getar Dekat STA: AKTIF";
+        btn.style.background = "#1976d2";
+        btn.style.color = "white";
+        navigator.vibrate(100); // Getar tes tanda aktif
+    } else {
+        btn.innerText = "Getar Dekat STA: MATI";
+        btn.style.background = "";
+        btn.style.color = "";
+    }
+}
+
+// FUNGSI PANGGIL GETAR (Masukkan fungsi ini di dalam fungsi watchPosition / pengecekan jarak kamu)
+function triggerVibrationAlert(jarakMeter) {
+    if (vibrationEnabled && jarakMeter <= 5) { // Bergetar jika jarak <= 5 meter
+        if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]); // Pola getar pendek 2x
+        }
+    }
+}
+
+
+// ==========================================
+// 4. EKSPOR RIWAYAT CSV
+// ==========================================
+let trackingHistory = [];
+
+// Fungsi untuk merekam data (Panggil fungsi ini di dalam loop watchPosition GPS kamu)
+function recordTrackingData(lat, lon, staName, distance) {
+    trackingHistory.push({
+        timestamp: new Date().toLocaleString(),
+        latitude: lat,
+        longitude: lon,
+        staTerdekat: staName,
+        jarak: distance.toFixed(2)
+    });
+}
+
+function exportHistoryCSV() {
+    if (trackingHistory.length === 0) {
+        alert("Belum ada data riwayat pelacakan yang terekam sesi ini!");
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,Waktu,Latitude,Longitude,STA_Terdekat,Jarak(meter)\n";
+    trackingHistory.forEach(row => {
+        csvContent += `"${row.timestamp}",${row.latitude},${row.longitude},"${row.staTerdekat}",${row.jarak}\n`;
+    });
+
+    let encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `riwayat_sta_ikn_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
